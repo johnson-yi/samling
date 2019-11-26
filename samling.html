@@ -77,6 +77,10 @@
                        value="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">
               </div>
               <div class="form-group">
+                <label class="control-label" for="nameQualifierFormat">Name Qualifier Format</label>
+                <input type="text" class="form-control" id="nameQualifierFormat">
+              </div>
+              <div class="form-group">
                 <label class="control-label" for="authnContextClassRef">Authentication Context Class Ref</label>
                 <input type="text" class="form-control" id="authnContextClassRef"
                        value="urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified">
@@ -147,6 +151,8 @@
               <dl>
                 <dt>Name Identifier</dt>
                 <dd>The user name that will appear in the assertion as logged-in.</dd>
+                <dt>Name Qualifier Format</dt>
+                <dd>NameFormat and SPNameFormat attributes for NameID node.</dd>
                 <dt>Assertion Consumer URL</dt>
                 <dd>The assertion consumer URL where the SAML Response will be posted back to.</dd>
                 <dt>Sign Response</dt>

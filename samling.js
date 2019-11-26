@@ -291,6 +291,7 @@ $(function() {
       inResponseTo: $('#inResponseTo').val().trim(),
       authnContextClassRef: $('#authnContextClassRef').val().trim(),
       nameIdentifierFormat: $('#nameIdentifierFormat').val().trim(),
+      nameQualifierFormat: $('#nameQualifierFormat').val().trim(),
       nameIdentifier: $('#nameIdentifier').val().trim(),
       sessionExpiration: _getSessionExpiration("ISO"),
       sessionIndex: ('_samling_' + (Math.random() * 10000000)).replace('.', '_'),

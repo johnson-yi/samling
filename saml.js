@@ -176,6 +176,11 @@ exports.createAssertion = function(options) {
     nameID.setAttribute('Format', options.nameIdentifierFormat);
   }
 
+  if (options.nameQualifierFormat) {
+    nameID.setAttribute('NameQualifier', options.nameQualifierFormat);
+    nameID.setAttribute('SPNameQualifier', options.nameQualifierFormat);
+  }
+
   if( options.authnContextClassRef ) {
     var authnCtxClassRef = doc.getElementsByTagName('saml:AuthnContextClassRef')[0];
     authnCtxClassRef.textContent = options.authnContextClassRef;
