@@ -277,7 +277,12 @@ $(function() {
         var line = line.split('=');
         var name = line.shift().trim();
         if (name.length > 0) {
-          attributes[name] = (line.join('=')).trim();
+          var value = line.join('=').trim();
+          if (attributes[name]) {
+            attributes[name].push(value);
+          } else {
+            attributes[name] = [value];
+          }
         }
       });
     }
