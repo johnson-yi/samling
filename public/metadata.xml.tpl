@@ -8,8 +8,8 @@
         </ds:X509Data>
       </ds:KeyInfo>
     </md:KeyDescriptor>
+    <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://capriza.github.io/samling/samling.html"/>
     <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
     <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://capriza.github.io/samling/samling.html"/>
-    <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://capriza.github.io/samling/samling.html"/>
   </md:IDPSSODescriptor>
 </md:EntityDescriptor>
