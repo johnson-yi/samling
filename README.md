@@ -1,13 +1,15 @@
-<div align="center"><img src="https://capriza.github.io/images/logos/logos-scorpion.svg" height="128" /></div>
+<div align="center"><img src="https://johnson-yi.github.io/images/logos/logos-scorpion.svg" height="128" /></div>
 
 Samling
 ===
+
+*(Note: This fork has additional features over the upstream project [capriza/samling](https://github.com/capriza/samling).)*
 
 Serverless (as in "client side only") SAML IDP for testing SAML integrations.
 
 ## See it Live
 
-Visit https://capriza.github.io/samling/samling.html to see it in action.
+Visit https://johnson-yi.github.io/samling/samling.html to see it in action.
 
 ## What is SAMLING
 
@@ -29,7 +31,7 @@ subsequent SAML responses.
 ## Installation
 
 ```bash
-git clone https://github.com/capriza/samling.git
+git clone https://github.com/johnson-yi/samling.git
 cd samling
 npm install
 npm run build
@@ -42,10 +44,10 @@ You'll end up with a `public` directory with all the required assets for loading
 Note: Docker 17.05 or higher is required.
 
 ```bash
-git clone https://github.com/capriza/samling.git
+git clone https://github.com/johnson-yi/samling.git
 cd samling
-docker build -t capriza/samling .
-docker run -d -p 8080:80 capriza/samling
+docker build -t johnson-yi/samling .
+docker run -d -p 8080:80 johnson-yi/samling
 ```
 You can now access samling at http://localhost:8080
 
@@ -53,24 +55,24 @@ You can now access samling at http://localhost:8080
 
 ### SAMLRequest with AuthnRequest
 
-Use `https://capriza.github.io/samling/samling.html?SAMLRequest=<SAML_REQUEST>` to initiate a login request via samling.
+Use `https://johnson-yi.github.io/samling/samling.html?SAMLRequest=<SAML_REQUEST>` to initiate a login request via samling.
 Specifying `ForceAuthn="true"` in the request will force Samling to land on the properties page instead of auto submitting the SAML response
 in case the user is already logged-in.
 
 ### SAMLRequest with LogoutRequest
 
-Use `https://capriza.github.io/samling/samling.html?SAMLRequest=<SAML_REQUEST>` to initiate a logout request.
+Use `https://johnson-yi.github.io/samling/samling.html?SAMLRequest=<SAML_REQUEST>` to initiate a logout request.
 If there is an active user session, the SAML Response will be automatically posted back.
 
 Add `manual=1` query parameters to the url to logout manually instead of the response being automatically posted back.
 
 ### IdP Metadata
 
-Use `https://capriza.github.io/samling/public/metadata.xml` to obtain the _default_ IdP metadata of Samling. Note that the downloadable metadata contains the default public certificate of samling - it is not suitable for generated keys. If you generate a new key pair you can obtain the metadata with the correct certificate from the "IdP Metadata" view.
+Use `https://johnson-yi.github.io/samling/public/metadata.xml` to obtain the _default_ IdP metadata of Samling. Note that the downloadable metadata contains the default public certificate of samling - it is not suitable for generated keys. If you generate a new key pair you can obtain the metadata with the correct certificate from the "IdP Metadata" view.
 
 ### Manual Usage
 
-1. Open up `https://capriza.github.io/samling/samling.html`. You'll land on the **SAML Response Properties** section.
+1. Open up `https://johnson-yi.github.io/samling/samling.html`. You'll land on the **SAML Response Properties** section.
 2. Fill in the required properties fields. Required fields are marked with an asterisks (*).
    * `Name Identifier` - the user name
    * `Assertion Consumer URL` - where to send the SAML response
