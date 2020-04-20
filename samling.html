@@ -71,6 +71,17 @@
                 <label class="control-label" for="callbackUrl">Assertion Consumer URL (Recipient) *</label>
                 <input type="text" class="form-control" id="callbackUrl">
               </div>
+              <div class="form-group" id="slsUrlControl">
+                <label class="control-label" for="slsUrl">Single Logout URL</label>
+                <input type="text" class="form-control" id="slsUrl">
+              </div>
+              <div class="form-group" id="slsBindingTypeControl">
+                <label class="control-label" for="slsBindingType">Single Logout Binding Type</label>
+                <select type="text" class="form-control" id="slsBindingType">
+                  <option value="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST">urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST</option>
+                  <option value="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect">urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect</option>
+                 </select>
+              </div>
               <div class="form-group">
                 <label class="control-label" for="nameIdentifierFormat">Name Identifier Format</label>
                 <input type="text" class="form-control" id="nameIdentifierFormat"
@@ -155,6 +166,8 @@
                 <dd>NameFormat and SPNameFormat attributes for NameID node.</dd>
                 <dt>Assertion Consumer URL</dt>
                 <dd>The assertion consumer URL where the SAML Response will be posted back to.</dd>
+                <dt>Single Logout URL</dt>
+                <dd>The single logout URL where the SAML Request/Response for logout will be sent to.</dd>
                 <dt>Sign Response</dt>
                 <dd>If checked, the SAML response will be signed in addition to the assertion.</dd>
                 <dt>Signature Private Key</dt>
@@ -198,8 +211,8 @@
                     </div>
                     <div class="col-md-8">
                       <div class="form-group" id="callbackUrlReadOnlyControl">
-                        <label class="control-label" for="callbackUrlReadOnly">Assertion Consumer URL</label>
-                        <input type="text" class="form-control" id="callbackUrlReadOnly">
+                        <label class="control-label" for="callbackUrlReadOnly">Callback URL</label>
+                        <input type="text" class="form-control" id="callbackUrlReadOnly" readonly>
                       </div>
                     </div>
                   </div>

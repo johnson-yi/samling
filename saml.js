@@ -71,7 +71,7 @@ exports.parseRequest = function(options, request, callback) {
         }
       } else if (rootElement.localName == 'LogoutRequest') {
         info.logout = {};
-        info.logout.callbackUrl = options.callbackUrl;
+        info.logout.callbackUrl = options.slsUrl || options.callbackUrl;
         info.logout.response =
             '<samlp:LogoutResponse xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ' +
             'xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_' + crypto.randomBytes(21).toString('hex') +
@@ -207,6 +207,18 @@ exports.signDocument = function(token, reference, options) {
   };
   sig.computeSignature(token, {prefix: 'ds', location: {action: 'after', reference : "//*[local-name(.)='Issuer']"}});
   return sig;
+}
+
+exports.signRedirect = function(samlmessage, relaystate, options) {
+  options.type = options.type || 'SAMLRequest';
+  options.signatureAlgorithm = options.signatureAlgorithm || 'rsa-sha256';
+  options.digestAlgorithm = options.digestAlgorithm || 'sha256';
+  var sig = crypto.createSign(options.signatureAlgorithm);
+  var url = options.type + '=' + encodeURIComponent(samlmessage) + (relayState ? '&RelayState=' + encodeURIComponent(relaystate) : '') + '&SigAlg=' + encodeURIComponent(algorithms.signature[options.signatureAlgorithm]);
+  sig.update(url);
+  var signature = sig.sign(options.key).toString('base64');
+  url += '&Signature=' + encodeURIComponent(signature);
+  return url;
 }
 
 exports.createResponse = function(options) {

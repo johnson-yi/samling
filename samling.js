@@ -20,17 +20,26 @@ function logout() {
 
   deleteCookie();
   var response = $('#samlResponse').val();
-  var callbackUrl = $('#callbackUrl').val();
-  if (response && callbackUrl) {
+  var slsUrl = $('#slsUrl').val();
+  var slsBindingType = $('#slsBindingType').val();
+  var relayState = $('#relayState').val();
+  if (response && slsUrl) {
     var options = {
       key: $('#signatureKey').val().trim(),
       cert: $('#signatureCert').val().trim()
     };
-    var samlResponse = window.SAML.signDocument(response, "//*[local-name(.)='LogoutResponse']", options);
-    $('#samlResponse').val(btoa(samlResponse.getSignedXml()));
-    var form = $('#samlResponseForm')[0];
-    form.action = callbackUrl;
-    form.submit();
+    if (slsBindingType == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect') {
+      options.type = 'SAMLResponse';
+      samlResponse = $('#samlResponse').val(btoa(response)).val();
+      signedParams = window.SAML.signRedirect(samlResponse, relayState, options);
+      location.href = slsUrl + '?' + signedParams;
+    } else {
+      var samlResponse = window.SAML.signDocument(response, "//*[local-name(.)='LogoutResponse']", options);
+      $('#samlResponse').val(btoa(samlResponse.getSignedXml()));
+      var form = $('#samlResponseForm')[0];
+      form.action = slsUrl;
+      form.submit();
+    }
   } else {
     location.href = location.href.replace(location.search, '');
   }
@@ -38,14 +47,14 @@ function logout() {
 
 function handleRequest(request, relayState) {
   // parse the saml request
-  window.SAML.parseRequest({issuer: $('#issuer').val().trim(), callbackUrl: $('#callbackUrl').val().trim()}, request, function(info) {
+  window.SAML.parseRequest({issuer: $('#issuer').val().trim(), callbackUrl: $('#callbackUrl').val().trim(), slsUrl: $('#slsUrl').val().trim()}, request, function(info) {
     if (relayState) {
       $('#relayState').val(decodeURIComponent(relayState));
     }
 
     if (info.logout) {
       $('#samlResponse').val(info.logout.response);
-      $('#callbackUrl').val(info.logout.callbackUrl);
+      $('#slsUrl').val(info.logout.callbackUrl);
       $('#callbackUrlReadOnly').val(info.logout.callbackUrl);
       logout();
       return;
@@ -121,6 +130,8 @@ $(function() {
         $('#signedInAt').text(data.signedInAt);
         $('#nameIdentifier').val(data.nameIdentifier);
         $('#callbackUrl').val(data.callbackUrl);
+        $('#slsUrl').val(data.slsUrl);
+        $('#slsBindingType').val(data.slsBindingType);
         $('#callbackUrlReadOnly').val(data.callbackUrl);
         $('#issuer').val(data.issuer);
         $('#authnContextClassRef').val(data.authnContextClassRef);
@@ -353,6 +364,8 @@ $(function() {
       signedInAt: new Date().toUTCString(),
       nameIdentifier: $('#nameIdentifier').val().trim(),
       callbackUrl: $('#callbackUrl').val().trim(),
+      slsUrl: $('#slsUrl').val().trim(),
+      slsBindingType: $('#slsBindingType').val(),
       issuer: $('#issuer').val().trim(),
       authnContextClassRef: $('#authnContextClassRef').val().trim(),
       nameIdentifierFormat: $('#nameIdentifierFormat').val().trim(),
