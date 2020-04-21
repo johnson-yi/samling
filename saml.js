@@ -207,19 +207,28 @@ exports.signDocument = function(token, reference, options) {
   };
   sig.computeSignature(token, {prefix: 'ds', location: {action: 'after', reference : "//*[local-name(.)='Issuer']"}});
   return sig;
-}
+};
 
-exports.signRedirect = function(samlmessage, relaystate, options) {
+exports.signRedirect = function(token, relaystate, options, callback) {
   options.type = options.type || 'SAMLRequest';
   options.signatureAlgorithm = options.signatureAlgorithm || 'rsa-sha256';
   options.digestAlgorithm = options.digestAlgorithm || 'sha256';
-  var sig = crypto.createSign(options.signatureAlgorithm);
-  var url = options.type + '=' + encodeURIComponent(samlmessage) + (relayState ? '&RelayState=' + encodeURIComponent(relaystate) : '') + '&SigAlg=' + encodeURIComponent(algorithms.signature[options.signatureAlgorithm]);
-  sig.update(url);
-  var signature = sig.sign(options.key).toString('base64');
-  url += '&Signature=' + encodeURIComponent(signature);
-  return url;
-}
+  token = removeWhitespace(token);
+  var buffer = new Buffer(token);
+  zlib.deflateRaw(buffer, function(err, result) {
+    if (!err) {
+      buffer = result;
+    }
+    token = buffer.toString('base64');
+    var sig = crypto.createSign(options.signatureAlgorithm);
+    var params = options.type + '=' + encodeURIComponent(token) + (relayState ? '&RelayState=' + encodeURIComponent(relaystate) : '') + '&SigAlg=' + encodeURIComponent(algorithms.signature[options.signatureAlgorithm]);
+    sig.update(params);
+    var signature = sig.sign(options.key).toString('base64');
+    params += '&Signature=' + encodeURIComponent(signature);
+
+    callback(params);
+  });
+};
 
 exports.createResponse = function(options) {
   var response = '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" Version="2.0"';

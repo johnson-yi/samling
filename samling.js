@@ -30,9 +30,10 @@ function logout() {
     };
     if (slsBindingType == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect') {
       options.type = 'SAMLResponse';
-      samlResponse = $('#samlResponse').val(btoa(response)).val();
-      signedParams = window.SAML.signRedirect(samlResponse, relayState, options);
-      location.href = slsUrl + '?' + signedParams;
+      $('#samlResponse').val(btoa(response)).val();
+      window.SAML.signRedirect(response, relayState, options, function(signedParams){
+        location.href = slsUrl + '?' + signedParams;
+      });
     } else {
       var samlResponse = window.SAML.signDocument(response, "//*[local-name(.)='LogoutResponse']", options);
       $('#samlResponse').val(btoa(samlResponse.getSignedXml()));
