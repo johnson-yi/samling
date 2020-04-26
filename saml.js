@@ -230,6 +230,17 @@ exports.signRedirect = function(token, relayState, options, callback) {
   });
 };
 
+exports.createLogoutRequest = function(options) {
+  var request = '<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ' +
+  'xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_' + crypto.randomBytes(21).toString('hex') +
+  '" Version="2.0" IssueInstant="' + new Date().toISOString() + '" Destination="' + options.destination + '">' +
+  '<saml:Issuer>' + options.issuer + '</saml:Issuer>' +
+  '<saml:NameID>' + options.nameIdentifier + '</saml:NameID>' +
+  '</samlp:LogoutRequest>';
+
+  return request;
+};
+
 exports.createResponse = function(options) {
   var response = '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" Version="2.0"';
   response += ' ID="_' + crypto.randomBytes(21).toString('hex') + '"';

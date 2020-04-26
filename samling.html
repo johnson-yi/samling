@@ -268,8 +268,12 @@
             <div class="">
               <h2 id="signedInUser"></h2>
               <h5>You have signed in at: <b id="signedInAt">You have not signed in yet.</b></h5>
-              <div style="margin-top: 32px;">
-                <a class="btn btn-default" href="#" role="button" id="signedInLogout">Logout</a>
+              <div class="form-group">
+                <input type="checkbox" class="form-check-input" id="sendLogout">
+                <label class="form-check-label" for="sendLogout">Send logout request</label>
+              </div>
+              <div>
+                <button class="btn btn-default" href="#" role="button" id="signedInLogout">Logout</button>
               </div>
             </div>
           </div>
@@ -281,6 +285,8 @@
                 <b>Post Response</b>.
               </p>
               <dl>
+                <dt>Send logout request</dt>
+                <dd>If checked, A SAML logout request will first be sent to the <b>Single Logout URL</b>.</dd>
                 <dt>Logout</dt>
                 <dd>Log the user out, erasing the cookie.</dd>
               </dl>
