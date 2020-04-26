@@ -209,7 +209,7 @@ exports.signDocument = function(token, reference, options) {
   return sig;
 };
 
-exports.signRedirect = function(token, relaystate, options, callback) {
+exports.signRedirect = function(token, relayState, options, callback) {
   options.type = options.type || 'SAMLRequest';
   options.signatureAlgorithm = options.signatureAlgorithm || 'rsa-sha256';
   options.digestAlgorithm = options.digestAlgorithm || 'sha256';
@@ -221,13 +221,24 @@ exports.signRedirect = function(token, relaystate, options, callback) {
     }
     token = buffer.toString('base64');
     var sig = crypto.createSign(options.signatureAlgorithm);
-    var params = options.type + '=' + encodeURIComponent(token) + (relayState ? '&RelayState=' + encodeURIComponent(relaystate) : '') + '&SigAlg=' + encodeURIComponent(algorithms.signature[options.signatureAlgorithm]);
+    var params = options.type + '=' + encodeURIComponent(token) + (relayState ? '&RelayState=' + encodeURIComponent(relayState) : '') + '&SigAlg=' + encodeURIComponent(algorithms.signature[options.signatureAlgorithm]);
     sig.update(params);
     var signature = sig.sign(options.key).toString('base64');
     params += '&Signature=' + encodeURIComponent(signature);
 
     callback(params);
   });
+};
+
+exports.createLogoutRequest = function(options) {
+  var request = '<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ' +
+  'xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_' + crypto.randomBytes(21).toString('hex') +
+  '" Version="2.0" IssueInstant="' + new Date().toISOString() + '" Destination="' + options.destination + '">' +
+  '<saml:Issuer>' + options.issuer + '</saml:Issuer>' +
+  '<saml:NameID>' + options.nameIdentifier + '</saml:NameID>' +
+  '</samlp:LogoutRequest>';
+
+  return request;
 };
 
 exports.createResponse = function(options) {

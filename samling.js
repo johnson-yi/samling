@@ -18,16 +18,38 @@ function logout() {
     return;
   }
 
-  deleteCookie();
-  var response = $('#samlResponse').val();
   var slsUrl = $('#slsUrl').val();
   var slsBindingType = $('#slsBindingType').val();
   var relayState = $('#relayState').val();
+  var options = {
+    key: $('#signatureKey').val().trim(),
+    cert: $('#signatureCert').val().trim()
+  };
+
+  if ($('#sendLogout').is(":checked") && slsUrl) {
+    options.issuer = $('#issuer').val();
+    options.destination = slsUrl;
+    options.nameIdentifier = $('#nameIdentifier').val();
+    var request = window.SAML.createLogoutRequest(options);
+    if (slsBindingType == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect') {
+      window.SAML.signRedirect(request, relayState, options, function(signedParams){
+        location.href = slsUrl + '?' + signedParams;
+      });
+    } else {
+      var samlRequest = window.SAML.signDocument(request, "//*[local-name(.)='LogoutRequest']", options);
+      var form = $('<form action="' + slsUrl + '" method="post">' +
+      '<input type="hidden" name="SAMLRequest" id="samlRequest" value="' + btoa(samlRequest.getSignedXml()) + '" />' +
+      '<input type="hidden" name="RelayState" value="' + relayState + '" />' +
+      '</form>');
+      $('body').append(form);
+      form.submit();
+    }
+    return;
+  }
+
+  deleteCookie();
+  var response = $('#samlResponse').val();
   if (response && slsUrl) {
-    var options = {
-      key: $('#signatureKey').val().trim(),
-      cert: $('#signatureCert').val().trim()
-    };
     if (slsBindingType == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect') {
       options.type = 'SAMLResponse';
       $('#samlResponse').val(btoa(response)).val();
@@ -162,6 +184,15 @@ $(function() {
   });
 
   $('#signedInLogout').click(function() {
+    $('#slsUrlControl').removeClass('has-error');
+
+    if ($('#sendLogout').is(":checked") && $('#slsUrl').val().trim().length === 0) {
+      $('#navbarSamling a[href="#samlPropertiesTab"]').tab('show')
+      $('#slsUrlControl').addClass('has-error');
+      $('#slsUrl').focus();
+      return;
+    }
+
     logout();
   });
 
@@ -385,5 +416,8 @@ $(function() {
     handleRequest(queryParams['SAMLRequest'], queryParams['RelayState']);
   }
 
+  if (queryParams['SAMLResponse']) {
+    logout();
+  }
 });
 
