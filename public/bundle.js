@@ -40892,7 +40892,7 @@ exports.signDocument = function(token, reference, options) {
   return sig;
 };
 
-exports.signRedirect = function(token, relaystate, options, callback) {
+exports.signRedirect = function(token, relayState, options, callback) {
   options.type = options.type || 'SAMLRequest';
   options.signatureAlgorithm = options.signatureAlgorithm || 'rsa-sha256';
   options.digestAlgorithm = options.digestAlgorithm || 'sha256';
@@ -40904,13 +40904,24 @@ exports.signRedirect = function(token, relaystate, options, callback) {
     }
     token = buffer.toString('base64');
     var sig = crypto.createSign(options.signatureAlgorithm);
-    var params = options.type + '=' + encodeURIComponent(token) + (relayState ? '&RelayState=' + encodeURIComponent(relaystate) : '') + '&SigAlg=' + encodeURIComponent(algorithms.signature[options.signatureAlgorithm]);
+    var params = options.type + '=' + encodeURIComponent(token) + (relayState ? '&RelayState=' + encodeURIComponent(relayState) : '') + '&SigAlg=' + encodeURIComponent(algorithms.signature[options.signatureAlgorithm]);
     sig.update(params);
     var signature = sig.sign(options.key).toString('base64');
     params += '&Signature=' + encodeURIComponent(signature);
 
     callback(params);
   });
+};
+
+exports.createLogoutRequest = function(options) {
+  var request = '<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ' +
+  'xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_' + crypto.randomBytes(21).toString('hex') +
+  '" Version="2.0" IssueInstant="' + new Date().toISOString() + '" Destination="' + options.destination + '">' +
+  '<saml:Issuer>' + options.issuer + '</saml:Issuer>' +
+  '<saml:NameID>' + options.nameIdentifier + '</saml:NameID>' +
+  '</samlp:LogoutRequest>';
+
+  return request;
 };
 
 exports.createResponse = function(options) {
@@ -40961,16 +40972,38 @@ function logout() {
     return;
   }
 
-  deleteCookie();
-  var response = $('#samlResponse').val();
   var slsUrl = $('#slsUrl').val();
   var slsBindingType = $('#slsBindingType').val();
   var relayState = $('#relayState').val();
+  var options = {
+    key: $('#signatureKey').val().trim(),
+    cert: $('#signatureCert').val().trim()
+  };
+
+  if ($('#sendLogout').is(":checked") && slsUrl) {
+    options.issuer = $('#issuer').val();
+    options.destination = slsUrl;
+    options.nameIdentifier = $('#nameIdentifier').val();
+    var request = window.SAML.createLogoutRequest(options);
+    if (slsBindingType == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect') {
+      window.SAML.signRedirect(request, relayState, options, function(signedParams){
+        location.href = slsUrl + '?' + signedParams;
+      });
+    } else {
+      var samlRequest = window.SAML.signDocument(request, "//*[local-name(.)='LogoutRequest']", options);
+      var form = $('<form action="' + slsUrl + '" method="post">' +
+      '<input type="hidden" name="SAMLRequest" id="samlRequest" value="' + btoa(samlRequest.getSignedXml()) + '" />' +
+      '<input type="hidden" name="RelayState" value="' + relayState + '" />' +
+      '</form>');
+      $('body').append(form);
+      form.submit();
+    }
+    return;
+  }
+
+  deleteCookie();
+  var response = $('#samlResponse').val();
   if (response && slsUrl) {
-    var options = {
-      key: $('#signatureKey').val().trim(),
-      cert: $('#signatureCert').val().trim()
-    };
     if (slsBindingType == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect') {
       options.type = 'SAMLResponse';
       $('#samlResponse').val(btoa(response)).val();
@@ -41105,6 +41138,15 @@ $(function() {
   });
 
   $('#signedInLogout').click(function() {
+    $('#slsUrlControl').removeClass('has-error');
+
+    if ($('#sendLogout').is(":checked") && $('#slsUrl').val().trim().length === 0) {
+      $('#navbarSamling a[href="#samlPropertiesTab"]').tab('show')
+      $('#slsUrlControl').addClass('has-error');
+      $('#slsUrl').focus();
+      return;
+    }
+
     logout();
   });
 
@@ -41328,6 +41370,9 @@ $(function() {
     handleRequest(queryParams['SAMLRequest'], queryParams['RelayState']);
   }
 
+  if (queryParams['SAMLResponse']) {
+    logout();
+  }
 });
 
 
